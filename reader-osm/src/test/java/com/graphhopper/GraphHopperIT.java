@@ -375,6 +375,37 @@ public class GraphHopperIT
         assertEquals(66, il.createGPXList().get(1).getElevation(), 1e-2);
         assertEquals(52, il.createGPXList().get(10).getElevation(), 1e-2);
     }
+    
+    
+    @Test
+    public void testTunnelElevation() throws Exception
+    {
+        GraphHopper tmpHopper = new GraphHopperOSM().
+                setOSMFile(osmFile).
+                setStoreOnFlush(true).
+                setCHEnabled(false).
+                setGraphHopperLocation(tmpGraphFile).
+                setEncodingManager(new EncodingManager(importVehicles));
+
+        tmpHopper.setElevationProvider(new SRTMProvider().setCacheDir(new File(DIR)));
+        tmpHopper.importOrLoad();
+        
+        GHResponse rsp = tmpHopper.route(new GHRequest(43.726588,7.417716, 43.727489,7.418668).
+                setAlgorithm(ASTAR).setVehicle(vehicle).setWeighting(weightCalcStr));
+
+        PathWrapper arsp = rsp.getBest();
+        assertTrue(arsp.getPoints().is3D());
+        assertEquals(8, arsp.getPoints().getSize());
+        assertEquals(9.18, arsp.getPoints().getElevation(0), .1);
+        assertEquals(9.37, arsp.getPoints().getElevation(1), .1);
+        assertEquals(9.65, arsp.getPoints().getElevation(2), .1);
+        assertEquals(9.88, arsp.getPoints().getElevation(3), .1);
+        assertEquals(10.10, arsp.getPoints().getElevation(4), .1);
+        assertEquals(10.35, arsp.getPoints().getElevation(5), .1);
+        assertEquals(10.80, arsp.getPoints().getElevation(6), .1);
+        assertEquals(11.0, arsp.getPoints().getElevation(7), .1);
+        assertEquals(129.838, arsp.getDistance(), .1);
+    }    
 
     @Test
     public void testKremsCyclewayInstructionsWithWayTypeInfo()

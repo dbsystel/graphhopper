@@ -21,6 +21,7 @@ import com.graphhopper.reader.DataReader;
 import com.graphhopper.reader.dem.CGIARProvider;
 import com.graphhopper.reader.dem.ElevationProvider;
 import com.graphhopper.reader.dem.SRTMProvider;
+import com.graphhopper.reader.dem.TunnelElevationInterpolator;
 import com.graphhopper.routing.*;
 import com.graphhopper.routing.ch.CHAlgoFactoryDecorator;
 import com.graphhopper.routing.ch.PrepareContractionHierarchies;
@@ -953,6 +954,11 @@ public class GraphHopper implements GraphHopperAPI
             GHUtility.sortDFS(ghStorage, newGraph);
             logger.info("graph sorted (" + Helper.getMemInfo() + ")");
             ghStorage = newGraph;
+        }
+        
+        if (ghStorage.getNodeAccess().is3D())
+        {
+        	new TunnelElevationInterpolator(ghStorage).execute();
         }
 
         initLocationIndex();
